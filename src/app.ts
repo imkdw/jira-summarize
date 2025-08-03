@@ -1,14 +1,15 @@
-import { App } from "@slack/bolt";
-import { config } from "dotenv";
+import { jiraClient } from "./libs/jira/jira-client";
+import { validateEnv } from "./env";
 
-config();
+async function init() {
+  const { JIRA_PROJECT_NAME } = validateEnv();
 
-const app = new App({
-  signingSecret: process.env.SLACK_SIGNING_SECRET,
-  token: process.env.SLACK_BOT_TOKEN,
-});
+  const project = await jiraClient.project.searchProject(JIRA_PROJECT_NAME);
 
-(async () => {
-  await app.start(process.env.PORT || 3000);
-  console.log("⚡️ Bolt app is running!");
-})();
+  const activeSprintId = await jiraClient.sprint.getActiveSprintId();
+  // const issues = await jiraClient.issue.getIssuesBySprintId(activeSprintId);
+
+  console.log(project);
+}
+
+init();
